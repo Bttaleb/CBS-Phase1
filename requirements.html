@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CBS — Requirements Database</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:       #0b1a10;
+      --surface:  #112418;
+      --surface2: #183322;
+      --border:   rgba(201,168,76,0.18);
+      --border2:  rgba(255,255,255,0.06);
+      --gold:     #c9a84c;
+      --gold2:    #e2c47a;
+      --green:    #2e5e36;
+      --green2:   #4a8c54;
+      --cream:    #f0f5ee;
+      --muted:    #7fa88a;
+      --red:      #c0392b;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--cream);
+      min-height: 100vh;
+      font-size: 13px;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    /* ── Header ── */
+    .header {
+      padding: 1.5rem 1.75rem 1rem;
+      border-bottom: 1px solid var(--border2);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .header-left h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--cream);
+      letter-spacing: -0.01em;
+    }
+
+    .header-left p {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--gold);
+      letter-spacing: 0.15em;
+      margin-top: 0.25rem;
+      text-transform: uppercase;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      padding: 0.85rem 1.75rem;
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border2);
+      background: var(--surface);
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+      max-width: 340px;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0.45rem 0.75rem 0.45rem 2rem;
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-wrap input:focus { border-color: var(--gold); }
+    .search-wrap input::placeholder { color: var(--muted); }
+
+    .search-icon {
+      position: absolute;
+      left: 0.6rem; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 0.8rem;
+      pointer-events: none;
+    }
+
+    select.filter {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0.45rem 0.6rem;
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    select.filter:focus { border-color: var(--gold); }
+
+    .toolbar-sep { width: 1px; height: 22px; background: var(--border2); margin: 0 0.2rem; }
+
+    .stat-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    .stat-badge strong { color: var(--gold2); }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 3px;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary {
+      background: var(--gold);
+      color: var(--bg);
+    }
+
+    .btn-primary:hover { background: var(--gold2); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover { color: var(--cream); border-color: var(--gold); }
+
+    .btn-danger {
+      background: transparent;
+      color: #e57373;
+      border: 1px solid rgba(192,57,43,0.3);
+      padding: 0.3rem 0.55rem;
+    }
+
+    .btn-danger:hover { background: rgba(192,57,43,0.15); }
+
+    /* ── Table wrapper ── */
+    .table-wrap {
+      overflow-x: auto;
+      max-height: calc(100vh - 170px);
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1400px;
+    }
+
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    thead tr {
+      background: var(--surface2);
+      border-bottom: 2px solid var(--gold);
+    }
+
+    th {
+      padding: 0.6rem 0.7rem;
+      text-align: left;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      white-space: nowrap;
+      user-select: none;
+      cursor: pointer;
+      border-right: 1px solid var(--border2);
+    }
+
+    th:last-child { border-right: none; cursor: default; }
+    th:hover:not(:last-child) { color: var(--gold2); }
+    th.sorted-asc::after { content: ' ↑'; }
+    th.sorted-desc::after { content: ' ↓'; }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border2);
+      transition: background 0.12s;
+    }
+
+    tbody tr:hover { background: rgba(201,168,76,0.04); }
+    tbody tr.editing { background: rgba(201,168,76,0.09); }
+
+    td {
+      padding: 0.48rem 0.7rem;
+      vertical-align: middle;
+      border-right: 1px solid var(--border2);
+      font-size: 0.78rem;
+      color: var(--cream);
+    }
+
+    td:last-child { border-right: none; }
+
+    /* Editable cells */
+    td[contenteditable="true"] {
+      outline: none;
+      cursor: text;
+    }
+
+    td[contenteditable="true"]:focus {
+      background: rgba(201,168,76,0.12);
+      box-shadow: inset 0 0 0 1px var(--gold);
+    }
+
+    td.desc-cell { min-width: 260px; max-width: 340px; white-space: normal; line-height: 1.5; }
+    td.mono { font-family: 'DM Mono', monospace; font-size: 0.72rem; }
+    td.num { text-align: center; }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 0.18rem 0.55rem;
+      border-radius: 20px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .badge-priority-High    { background: rgba(192,57,43,0.18);  color: #f1948a; }
+    .badge-priority-Medium  { background: rgba(201,168,76,0.18); color: var(--gold2); }
+    .badge-priority-Low     { background: rgba(46,94,54,0.35);   color: #82c98b; }
+
+    .badge-type-Technical { background: rgba(52,152,219,0.18); color: #7fb3d3; }
+    .badge-type-Policy    { background: rgba(142,68,173,0.18); color: #c39bd3; }
+    .badge-type-UX        { background: rgba(39,174,96,0.18);  color: #82e0aa; }
+
+    .badge-status-Planned    { background: rgba(201,168,76,0.15); color: var(--gold); }
+    .badge-status-In-Progress { background: rgba(52,152,219,0.2); color: #85c1e9; }
+    .badge-status-Done        { background: rgba(39,174,96,0.2);  color: #76d7c4; }
+    .badge-status-Blocked     { background: rgba(192,57,43,0.2);  color: #f1948a; }
+
+    .badge-cat-Booking        { background: rgba(46,94,54,0.35);   color: #82c98b; }
+    .badge-cat-Authentication { background: rgba(52,152,219,0.18); color: #7fb3d3; }
+    .badge-cat-Notifications  { background: rgba(201,168,76,0.18); color: var(--gold2); }
+    .badge-cat-Administration { background: rgba(142,68,173,0.18); color: #c39bd3; }
+    .badge-cat-Feedback       { background: rgba(39,174,96,0.18);  color: #82e0aa; }
+    .badge-cat-Accessibility  { background: rgba(230,126,34,0.18); color: #f0b27a; }
+    .badge-cat-Security       { background: rgba(192,57,43,0.18);  color: #f1948a; }
+
+    .badge-phase { background: rgba(255,255,255,0.06); color: var(--muted); }
+
+    /* Inline select for badge cells */
+    td select.inline-select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.4rem;
+      outline: none;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.75rem;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.2s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      color: var(--gold2);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-group label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      padding: 0.5rem 0.7rem;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: var(--gold); }
+
+    .form-group textarea { resize: vertical; min-height: 80px; }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.6rem;
+      margin-top: 1.25rem;
+    }
+
+    /* ── Export toast ── */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem; right: 1.5rem;
+      background: var(--green);
+      color: var(--cream);
+      padding: 0.6rem 1rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      transform: translateY(60px);
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 200;
+      border: 1px solid var(--gold);
+    }
+
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ── Highlight search ── */
+    mark {
+      background: rgba(201,168,76,0.35);
+      color: var(--cream);
+      border-radius: 2px;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--green); }
+
+    /* ── Site Navigation ── */
+    .site-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 1.75rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border2);
+    }
+
+    .nav-link {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.35rem 0.65rem;
+      border-radius: 3px;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .nav-link:hover {
+      color: var(--gold);
+      background: rgba(201,168,76,0.08);
+    }
+
+    .nav-links-right {
+      display: flex;
+      gap: 0.25rem;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar"></div>
+
+<nav class="site-nav">
+  <span class="nav-link" style="color:var(--gold);cursor:default;">Requirements DB</span>
+  <div class="nav-links-right">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="product.html" class="nav-link">Product</a>
+    <a href="tooling.html" class="nav-link">Tooling</a>
+  </div>
+</nav>
+
+<div class="header">
+  <div class="header-left">
+    <h1>Campus Booking System — Requirements Database</h1>
+    <p>CBS-REQDB-001 &nbsp;·&nbsp; Phase 1 &nbsp;·&nbsp; v1.0</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="exportCSV()">↓ Export CSV</button>
+    <button class="btn btn-primary" onclick="openAddModal()">+ Add Requirement</button>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="searchInput" placeholder="Search requirements…" oninput="applyFilters()"/>
+  </div>
+
+  <select class="filter" id="filterEpic" onchange="applyFilters()">
+    <option value="">All Phases</option>
+    <option>Authentication</option>
+    <option>Tutor Booking</option>
+    <option>Room Booking</option>
+    <option>Equipment Booking</option>
+    <option>Notifications</option>
+    <option>Administration</option>
+    <option>Ratings & Feedback</option>
+  </select>
+
+  <select class="filter" id="filterCategory" onchange="applyFilters()">
+    <option value="">All Categories</option>
+    <option>Authentication</option>
+    <option>Booking</option>
+    <option>Notifications</option>
+    <option>Administration</option>
+    <option>Feedback</option>
+    <option>Accessibility</option>
+    <option>Security</option>
+  </select>
+
+  <select class="filter" id="filterPriority" onchange="applyFilters()">
+    <option value="">All Priorities</option>
+    <option>High</option>
+    <option>Medium</option>
+    <option>Low</option>
+  </select>
+
+  <select class="filter" id="filterStatus" onchange="applyFilters()">
+    <option value="">All Statuses</option>
+    <option>Planned</option>
+    <option>In-Progress</option>
+    <option>Done</option>
+    <option>Blocked</option>
+  </select>
+
+  <select class="filter" id="filterType" onchange="applyFilters()">
+    <option value="">All Types</option>
+    <option>Technical</option>
+    <option>Policy</option>
+    <option>UX</option>
+  </select>
+
+  <div class="toolbar-sep"></div>
+  <span class="stat-badge">Showing <strong id="visibleCount">0</strong> of <strong id="totalCount">0</strong></span>
+</div>
+
+<div class="table-wrap">
+  <table id="reqTable">
+    <thead>
+      <tr>
+        <th onclick="sortTable('date')">Date</th>
+        <th onclick="sortTable('id')">Unique ID</th>
+        <th onclick="sortTable('num')" class="num">#</th>
+        <th onclick="sortTable('category')">Category</th>
+        <th>REQT Description</th>
+        <th onclick="sortTable('spearhead')">Spearhead</th>
+        <th onclick="sortTable('stakeholder')">Stakeholder</th>
+        <th onclick="sortTable('phase')">Phase / Epic</th>
+        <th onclick="sortTable('type')">Reqt Type</th>
+        <th onclick="sortTable('status')">Status</th>
+        <th onclick="sortTable('priority')">Priority</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  <div class="empty-state" id="emptyState" style="display:none">No requirements match the current filters.</div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2 id="modalTitle">Add Requirement</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Unique ID</label>
+        <input type="text" id="fId" placeholder="CBS-REQ-001"/>
+      </div>
+      <div class="form-group">
+        <label>Reqt Number #</label>
+        <input type="number" id="fNum" placeholder="1"/>
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select id="fCategory">
+          <option>Authentication</option>
+          <option>Booking</option>
+          <option>Notifications</option>
+          <option>Administration</option>
+          <option>Feedback</option>
+          <option>Accessibility</option>
+          <option>Security</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Phase / Epic</label>
+        <select id="fPhase">
+          <option>Authentication</option>
+          <option>Tutor Booking</option>
+          <option>Room Booking</option>
+          <option>Equipment Booking</option>
+          <option>Notifications</option>
+          <option>Administration</option>
+          <option>Ratings & Feedback</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>REQT Description</label>
+        <textarea id="fDesc" placeholder="Describe the requirement…"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Spearhead</label>
+        <select id="fSpearhead">
+          <option>Jason Myers</option>
+          <option>Umaya Hassan</option>
+          <option>Syeda Ahmed</option>
+          <option>Saad Alzamzami</option>
+          <option>Bassel Taleb</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Stakeholder</label>
+        <select id="fStakeholder">
+          <option>Student Users</option>
+          <option>Tutor Users</option>
+          <option>Admin Users</option>
+          <option>University IT Department</option>
+          <option>Facilities Management</option>
+          <option>Academic Services (External)</option>
+          <option>Engineering Team</option>
+          <option>Compliance Team</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Reqt Type</label>
+        <select id="fType">
+          <option>Technical</option>
+          <option>Policy</option>
+          <option>UX</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="fStatus">
+          <option>Planned</option>
+          <option>In-Progress</option>
+          <option>Done</option>
+          <option>Blocked</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Priority</label>
+        <select id="fPriority">
+          <option>High</option>
+          <option>Medium</option>
+          <option>Low</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRequirement()">Save Requirement</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Data ────────────────────────────────────────────────────────────────────
+
+const today = '2025-09-01';
+
+let requirements = [
+  // EPIC 1 — Authentication
+  { date: today, id: 'CBS-REQ-001', num: 1,  category: 'Authentication', desc: 'Allow students to register with a university-issued email address and create a secure account.', spearhead: 'Bassel Taleb',    stakeholder: 'Student Users',               phase: 'Authentication',      type: 'Technical', status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-002', num: 2,  category: 'Security',       desc: 'Implement secure credential-based login with session token management and automatic expiry.', spearhead: 'Saad Alzamzami',   stakeholder: 'Student Users',               phase: 'Authentication',      type: 'Technical', status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-003', num: 3,  category: 'Authentication', desc: 'Support role-based access control differentiating Student, Tutor, and Admin permissions.', spearhead: 'Saad Alzamzami',   stakeholder: 'Admin Users',                 phase: 'Authentication',      type: 'Policy',    status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-004', num: 4,  category: 'Security',       desc: 'Enable biometric authentication (Face ID / Touch ID) for returning users on iOS devices.', spearhead: 'Bassel Taleb',    stakeholder: 'Student Users',               phase: 'Authentication',      type: 'Technical', status: 'Planned', priority: 'Medium' },
+  { date: today, id: 'CBS-REQ-005', num: 5,  category: 'Authentication', desc: 'Provide password reset functionality via verified university email.', spearhead: 'Bassel Taleb',    stakeholder: 'Student Users',               phase: 'Authentication',      type: 'Technical', status: 'Planned', priority: 'Medium' },
+  { date: today, id: 'CBS-REQ-006', num: 6,  category: 'Accessibility',  desc: 'Allow all authenticated users to view and update their profile, contact details, and booking preferences.', spearhead: 'Syeda Ahmed',     stakeholder: 'Student Users',               phase: 'Authentication',      type: 'UX',        status: 'Planned', priority: 'Medium' },
+
+  // EPIC 2 — Tutor Booking
+  { date: today, id: 'CBS-REQ-007', num: 7,  category: 'Booking',        desc: 'Enable students to search and filter tutors by subject, availability, and rating.', spearhead: 'Umaya Hassan',    stakeholder: 'Student Users',               phase: 'Tutor Booking',       type: 'UX',        status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-008', num: 8,  category: 'Booking',        desc: 'Display a live availability calendar for each tutor showing open, booked, and blocked slots.', spearhead: 'Saad Alzamzami',   stakeholder: 'Tutor Users',                 phase: 'Tutor Booking',       type: 'Technical', status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-009', num: 9,  category: 'Booking',        desc: 'Allow students to reserve a tutor session slot and receive an instant booking confirmation.', spearhead: 'Bassel Taleb',    stakeholder: 'Student Users',               phase: 'Tutor Booking',       type: 'Technical', status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-010', num: 10, category: 'Booking',        desc: 'Permit session cancellation or rescheduling within a defined policy window (e.g., 24 hours notice).', spearhead: 'Jason Myers',     stakeholder: 'Academic Services (External)', phase: 'Tutor Booking',      type: 'Policy',    status: 'Planned', priority: 'Medium' },
+  { date: today, id: 'CBS-REQ-011', num: 11, category: 'Accessibility',  desc: 'Present each tutor\'s bio, qualifications, subject areas, and historical ratings on a dedicated profile view.', spearhead: 'Syeda Ahmed',     stakeholder: 'Student Users',               phase: 'Tutor Booking',       type: 'UX',        status: 'Planned', priority: 'High'   },
+
+  // EPIC 3 — Room Booking
+  { date: today, id: 'CBS-REQ-012', num: 12, category: 'Booking',        desc: 'Allow students to search and filter study rooms by capacity, location, equipment available, and real-time availability.', spearhead: 'Umaya Hassan',    stakeholder: 'Student Users',               phase: 'Room Booking',        type: 'UX',        status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-013', num: 13, category: 'Booking',        desc: 'Display a real-time availability grid for each room across configurable time slots.', spearhead: 'Saad Alzamzami',   stakeholder: 'Facilities Management',        phase: 'Room Booking',        type: 'Technical', status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-014', num: 14, category: 'Booking',        desc: 'Enable reservation of a room for a specified time block with confirmation receipt.', spearhead: 'Bassel Taleb',    stakeholder: 'Student Users',               phase: 'Room Booking',        type: 'Technical', status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-015', num: 15, category: 'Accessibility',  desc: 'Provide QR-code check-in functionality for confirmed room reservations on arrival.', spearhead: 'Syeda Ahmed',     stakeholder: 'Facilities Management',        phase: 'Room Booking',        type: 'Technical', status: 'Planned', priority: 'Medium' },
+  { date: today, id: 'CBS-REQ-016', num: 16, category: 'Booking',        desc: 'Display room details including photos, capacity, amenities, floor plan, and booking rules.', spearhead: 'Syeda Ahmed',     stakeholder: 'Student Users',               phase: 'Room Booking',        type: 'UX',        status: 'Planned', priority: 'Medium' },
+  { date: today, id: 'CBS-REQ-017', num: 17, category: 'Security',       desc: 'Enforce maximum room booking duration and advance booking window per university policy.', spearhead: 'Jason Myers',     stakeholder: 'University IT Department',     phase: 'Room Booking',        type: 'Policy',    status: 'Planned', priority: 'High'   },
+
+  // EPIC 4 — Equipment Booking
+  { date: today, id: 'CBS-REQ-018', num: 18, category: 'Booking',        desc: 'Provide a searchable equipment catalogue organised by category with real-time availability status.', spearhead: 'Umaya Hassan',    stakeholder: 'Student Users',               phase: 'Equipment Booking',   type: 'UX',        status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-019', num: 19, category: 'Booking',        desc: 'Allow students to reserve equipment items with specified pickup and return time slots.', spearhead: 'Bassel Taleb',    stakeholder: 'Student Users',               phase: 'Equipment Booking',   type: 'Technical', status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-020', num: 20, category: 'Booking',        desc: 'Display a weekly availability calendar for each equipment item.', spearhead: 'Saad Alzamzami',   stakeholder: 'Facilities Management',        phase: 'Equipment Booking',   type: 'Technical', status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-021', num: 21, category: 'Notifications',  desc: 'Send automated alerts to students for overdue equipment returns.', spearhead: 'Bassel Taleb',    stakeholder: 'University IT Department',     phase: 'Equipment Booking',   type: 'Technical', status: 'Planned', priority: 'Medium' },
+  { date: today, id: 'CBS-REQ-022', num: 22, category: 'Administration', desc: 'Allow admins to mark equipment as unavailable due to maintenance or damage.', spearhead: 'Jason Myers',     stakeholder: 'Facilities Management',        phase: 'Equipment Booking',   type: 'Policy',    status: 'Planned', priority: 'Medium' },
+
+  // EPIC 5 — Notifications
+  { date: today, id: 'CBS-REQ-023', num: 23, category: 'Notifications',  desc: 'Send push notifications to confirm room, equipment, and tutor booking reservations immediately.', spearhead: 'Saad Alzamzami',   stakeholder: 'Student Users',               phase: 'Notifications',       type: 'Technical', status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-024', num: 24, category: 'Notifications',  desc: 'Send reminder notifications 24 hours and 1 hour before scheduled bookings.', spearhead: 'Bassel Taleb',    stakeholder: 'Student Users',               phase: 'Notifications',       type: 'Technical', status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-025', num: 25, category: 'Notifications',  desc: 'Notify students of cancellations, slot changes, or admin-triggered booking modifications.', spearhead: 'Bassel Taleb',    stakeholder: 'Student Users',               phase: 'Notifications',       type: 'Technical', status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-026', num: 26, category: 'Notifications',  desc: 'Alert students when they are promoted from a waitlist to a confirmed booking.', spearhead: 'Umaya Hassan',    stakeholder: 'Student Users',               phase: 'Notifications',       type: 'Technical', status: 'Planned', priority: 'Medium' },
+  { date: today, id: 'CBS-REQ-027', num: 27, category: 'Accessibility',  desc: 'Allow users to configure notification preferences (push, in-app) in profile settings.', spearhead: 'Syeda Ahmed',     stakeholder: 'Student Users',               phase: 'Notifications',       type: 'UX',        status: 'Planned', priority: 'Low'    },
+
+  // EPIC 6 — Administration
+  { date: today, id: 'CBS-REQ-028', num: 28, category: 'Administration', desc: 'Provide an admin dashboard showing real-time resource utilisation across rooms, equipment, and tutors.', spearhead: 'Saad Alzamzami',   stakeholder: 'Admin Users',                 phase: 'Administration',      type: 'Technical', status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-029', num: 29, category: 'Administration', desc: 'Allow admins to create, modify, and deactivate student and tutor user accounts.', spearhead: 'Jason Myers',     stakeholder: 'University IT Department',     phase: 'Administration',      type: 'Policy',    status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-030', num: 30, category: 'Administration', desc: 'Enable admins to approve, reject, or override any booking request across all resource types.', spearhead: 'Jason Myers',     stakeholder: 'Admin Users',                 phase: 'Administration',      type: 'Policy',    status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-031', num: 31, category: 'Administration', desc: 'Generate exportable utilisation and booking frequency reports for facilities planning.', spearhead: 'Umaya Hassan',    stakeholder: 'Academic Services (External)', phase: 'Administration',      type: 'Technical', status: 'Planned', priority: 'Medium' },
+  { date: today, id: 'CBS-REQ-032', num: 32, category: 'Security',       desc: 'Maintain a full audit log of all admin actions, booking events, and system changes.', spearhead: 'Saad Alzamzami',   stakeholder: 'Compliance Team',              phase: 'Administration',      type: 'Policy',    status: 'Planned', priority: 'High'   },
+
+  // EPIC 7 — Ratings & Feedback
+  { date: today, id: 'CBS-REQ-033', num: 33, category: 'Feedback',       desc: 'Allow students to submit a star rating and written review after each completed tutor session.', spearhead: 'Syeda Ahmed',     stakeholder: 'Student Users',               phase: 'Ratings & Feedback',  type: 'UX',        status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-034', num: 34, category: 'Feedback',       desc: 'Display aggregated tutor ratings and reviews on the tutor profile view.', spearhead: 'Syeda Ahmed',     stakeholder: 'Tutor Users',                 phase: 'Ratings & Feedback',  type: 'UX',        status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-035', num: 35, category: 'Feedback',       desc: 'Enable students to rate room and equipment quality after use, contributing to a quality score.', spearhead: 'Umaya Hassan',    stakeholder: 'Facilities Management',        phase: 'Ratings & Feedback',  type: 'UX',        status: 'Planned', priority: 'Medium' },
+  { date: today, id: 'CBS-REQ-036', num: 36, category: 'Administration', desc: 'Allow admins to moderate, flag, and remove inappropriate review content.', spearhead: 'Jason Myers',     stakeholder: 'Compliance Team',              phase: 'Ratings & Feedback',  type: 'Policy',    status: 'Planned', priority: 'Medium' },
+  { date: today, id: 'CBS-REQ-037', num: 37, category: 'Accessibility',  desc: 'Ensure the entire application meets WCAG 2.1 AA accessibility standards and iOS VoiceOver compatibility.', spearhead: 'Syeda Ahmed',     stakeholder: 'Academic Services (External)', phase: 'Ratings & Feedback', type: 'Policy',    status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-038', num: 38, category: 'Security',       desc: 'Ensure all user data is encrypted in transit (TLS 1.3) and at rest, complying with university data protection policy.', spearhead: 'Saad Alzamzami',   stakeholder: 'University IT Department',     phase: 'Administration',      type: 'Policy',    status: 'Planned', priority: 'High'   },
+  { date: today, id: 'CBS-REQ-039', num: 39, category: 'Accessibility',  desc: 'Support both English and Arabic interface language options to serve international and local student populations.', spearhead: 'Syeda Ahmed',     stakeholder: 'Academic Services (External)', phase: 'Authentication',      type: 'UX',        status: 'Planned', priority: 'Low'    },
+  { date: today, id: 'CBS-REQ-040', num: 40, category: 'Notifications',  desc: 'Integrate with university calendar systems (Google Calendar / Outlook) to sync booking events automatically.', spearhead: 'Saad Alzamzami',   stakeholder: 'University IT Department',     phase: 'Notifications',       type: 'Technical', status: 'Planned', priority: 'Medium' },
+];
+
+let editingId = null;
+let sortCol = null;
+let sortDir = 1;
+let filteredData = [...requirements];
+
+// ── Rendering ────────────────────────────────────────────────────────────────
+
+function badge(text, type) {
+  const key = text ? text.replace(/\s+/g, '-').replace(/[&]/g, '') : '';
+  const cls = `badge badge-${type}-${key}`;
+  return `<span class="${cls}">${text || ''}</span>`;
+}
+
+function highlight(text, query) {
+  if (!query) return text;
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
+}
+
+function renderTable() {
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  const tbody = document.getElementById('tableBody');
+
+  if (filteredData.length === 0) {
+    tbody.innerHTML = '';
+    document.getElementById('emptyState').style.display = 'block';
+  } else {
+    document.getElementById('emptyState').style.display = 'none';
+    tbody.innerHTML = filteredData.map(r => {
+      const hl = t => highlight(String(t || ''), query);
+      return `
+      <tr data-id="${r.id}">
+        <td class="mono">${r.date}</td>
+        <td class="mono" contenteditable="true" onblur="updateField('${r.id}','id',this.innerText)">${hl(r.id)}</td>
+        <td class="num">${r.num}</td>
+        <td>${badge(r.category, 'cat')}</td>
+        <td class="desc-cell" contenteditable="true" onblur="updateField('${r.id}','desc',this.innerText)">${hl(r.desc)}</td>
+        <td contenteditable="true" onblur="updateField('${r.id}','spearhead',this.innerText)">${hl(r.spearhead)}</td>
+        <td contenteditable="true" onblur="updateField('${r.id}','stakeholder',this.innerText)">${hl(r.stakeholder)}</td>
+        <td><span class="badge badge-phase">${hl(r.phase)}</span></td>
+        <td>${badge(r.type, 'type')}</td>
+        <td>${badge(r.status, 'status')}</td>
+        <td>${badge(r.priority, 'priority')}</td>
+        <td>
+          <div style="display:flex;gap:0.4rem;align-items:center;">
+            <button class="btn btn-ghost" style="padding:0.28rem 0.55rem;font-size:0.72rem;" onclick="openEditModal('${r.id}')">Edit</button>
+            <button class="btn btn-danger" onclick="deleteRow('${r.id}')">✕</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  document.getElementById('visibleCount').textContent = filteredData.length;
+  document.getElementById('totalCount').textContent = requirements.length;
+}
+
+// ── Filtering ────────────────────────────────────────────────────────────────
+
+function applyFilters() {
+  const q        = document.getElementById('searchInput').value.toLowerCase();
+  const epic     = document.getElementById('filterEpic').value;
+  const category = document.getElementById('filterCategory').value;
+  const priority = document.getElementById('filterPriority').value;
+  const status   = document.getElementById('filterStatus').value;
+  const type     = document.getElementById('filterType').value;
+
+  filteredData = requirements.filter(r => {
+    const text = [r.id, r.desc, r.spearhead, r.stakeholder, r.phase, r.category].join(' ').toLowerCase();
+    return (
+      (!q        || text.includes(q)) &&
+      (!epic     || r.phase     === epic) &&
+      (!category || r.category  === category) &&
+      (!priority || r.priority  === priority) &&
+      (!status   || r.status    === status) &&
+      (!type     || r.type      === type)
+    );
+  });
+
+  if (sortCol) doSort(sortCol, false);
+  renderTable();
+}
+
+// ── Sorting ──────────────────────────────────────────────────────────────────
+
+const sortMap = { date:'date', id:'id', num:'num', category:'category', spearhead:'spearhead', stakeholder:'stakeholder', phase:'phase', type:'type', status:'status', priority:'priority' };
+const priorityOrder = { High:0, Medium:1, Low:2 };
+
+function sortTable(col) {
+  if (sortCol === col) { sortDir *= -1; } else { sortCol = col; sortDir = 1; }
+  document.querySelectorAll('th').forEach(th => th.classList.remove('sorted-asc','sorted-desc'));
+  const thMap = ['date','id','num','category','','spearhead','stakeholder','phase','type','status','priority'];
+  const idx = thMap.indexOf(col);
+  if (idx >= 0) {
+    const ths = document.querySelectorAll('th');
+    ths[idx].classList.add(sortDir === 1 ? 'sorted-asc' : 'sorted-desc');
+  }
+  doSort(col, true);
+  renderTable();
+}
+
+function doSort(col, updateFiltered = true) {
+  const arr = updateFiltered ? filteredData : filteredData;
+  arr.sort((a, b) => {
+    let va = a[sortMap[col]] ?? '';
+    let vb = b[sortMap[col]] ?? '';
+    if (col === 'priority') { va = priorityOrder[va] ?? 9; vb = priorityOrder[vb] ?? 9; }
+    if (col === 'num') { va = +va; vb = +vb; }
+    if (va < vb) return -sortDir;
+    if (va > vb) return  sortDir;
+    return 0;
+  });
+}
+
+// ── CRUD ─────────────────────────────────────────────────────────────────────
+
+function updateField(id, field, value) {
+  const r = requirements.find(r => r.id === id);
+  if (r) { r[field] = value.trim(); applyFilters(); }
+}
+
+function deleteRow(id) {
+  if (!confirm('Delete requirement ' + id + '?')) return;
+  requirements = requirements.filter(r => r.id !== id);
+  applyFilters();
+  showToast('Requirement deleted');
+}
+
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = 'Add Requirement';
+  const nextNum = Math.max(...requirements.map(r => r.num), 0) + 1;
+  document.getElementById('fId').value = 'CBS-REQ-' + String(nextNum).padStart(3,'0');
+  document.getElementById('fNum').value = nextNum;
+  document.getElementById('fDesc').value = '';
+  document.getElementById('fCategory').value = 'Booking';
+  document.getElementById('fPhase').value = 'Room Booking';
+  document.getElementById('fSpearhead').value = 'Bassel Taleb';
+  document.getElementById('fStakeholder').value = 'Student Users';
+  document.getElementById('fType').value = 'Technical';
+  document.getElementById('fStatus').value = 'Planned';
+  document.getElementById('fPriority').value = 'High';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function openEditModal(id) {
+  editingId = id;
+  const r = requirements.find(r => r.id === id);
+  if (!r) return;
+  document.getElementById('modalTitle').textContent = 'Edit Requirement';
+  document.getElementById('fId').value         = r.id;
+  document.getElementById('fNum').value        = r.num;
+  document.getElementById('fDesc').value       = r.desc;
+  document.getElementById('fCategory').value   = r.category;
+  document.getElementById('fPhase').value      = r.phase;
+  document.getElementById('fSpearhead').value  = r.spearhead;
+  document.getElementById('fStakeholder').value= r.stakeholder;
+  document.getElementById('fType').value       = r.type;
+  document.getElementById('fStatus').value     = r.status;
+  document.getElementById('fPriority').value   = r.priority;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  editingId = null;
+}
+
+function saveRequirement() {
+  const data = {
+    date:        today,
+    id:          document.getElementById('fId').value.trim(),
+    num:         parseInt(document.getElementById('fNum').value),
+    category:    document.getElementById('fCategory').value,
+    desc:        document.getElementById('fDesc').value.trim(),
+    spearhead:   document.getElementById('fSpearhead').value,
+    stakeholder: document.getElementById('fStakeholder').value,
+    phase:       document.getElementById('fPhase').value,
+    type:        document.getElementById('fType').value,
+    status:      document.getElementById('fStatus').value,
+    priority:    document.getElementById('fPriority').value,
+  };
+
+  if (!data.id || !data.desc) { alert('ID and Description are required.'); return; }
+
+  if (editingId) {
+    const idx = requirements.findIndex(r => r.id === editingId);
+    if (idx >= 0) requirements[idx] = data;
+    showToast('Requirement updated');
+  } else {
+    requirements.push(data);
+    showToast('Requirement added');
+  }
+
+  closeModal();
+  applyFilters();
+}
+
+// ── Export CSV ───────────────────────────────────────────────────────────────
+
+function exportCSV() {
+  const cols = ['date','id','num','category','desc','spearhead','stakeholder','phase','type','status','priority'];
+  const header = ['Date','Unique ID','#','Category','REQT Description','Spearhead','Stakeholder','Phase/Epic','Reqt Type','Status','Priority'];
+  const rows = [header, ...filteredData.map(r => cols.map(c => `"${String(r[c]||'').replace(/"/g,'""')}"`)  )];
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'CBS_Requirements_DB.csv';
+  a.click();
+  showToast('Exported as CSV');
+}
+
+// ── Toast ────────────────────────────────────────────────────────────────────
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// Close modal on overlay click
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+// Close modal on Escape
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+applyFilters();
+</script>
+</body>
+</html>
