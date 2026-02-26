@@ -114,6 +114,10 @@
     <h2 id="modalTitle">Add Requirement</h2>
     <div class="form-grid">
       <div class="form-group">
+        <label>Date</label>
+        <input type="date" id="fDate"/>
+      </div>
+      <div class="form-group">
         <label>Unique ID</label>
         <input type="text" id="fId" placeholder="CBS-REQ-001"/>
       </div>
@@ -384,50 +388,60 @@ function doSort(col, updateFiltered = true) {
 // ── CRUD ─────────────────────────────────────────────────────────────────────
 
 function updateField(id, field, value) {
-  const r = requirements.find(r => r.id === id);
-  if (r) { r[field] = value.trim(); applyFilters(); }
+  try {
+    var r = requirements.find(function(req){ return req.id === id; });
+    if (r) { r[field] = value.trim(); applyFilters(); showToast('Field updated'); }
+  } catch(e) { console.error('updateField error:', e); }
 }
 
 function deleteRow(id) {
-  if (!confirm('Delete requirement ' + id + '?')) return;
-  requirements = requirements.filter(r => r.id !== id);
-  applyFilters();
-  showToast('Requirement deleted');
+  try {
+    if (!confirm('Delete requirement ' + id + '?')) return;
+    requirements = requirements.filter(function(req){ return req.id !== id; });
+    applyFilters();
+    showToast('Requirement deleted');
+  } catch(e) { console.error('deleteRow error:', e); }
 }
 
 function openAddModal() {
-  editingId = null;
-  document.getElementById('modalTitle').textContent = 'Add Requirement';
-  const nextNum = Math.max(...requirements.map(r => r.num), 0) + 1;
-  document.getElementById('fId').value = 'CBS-REQ-' + String(nextNum).padStart(3,'0');
-  document.getElementById('fNum').value = nextNum;
-  document.getElementById('fDesc').value = '';
-  document.getElementById('fCategory').value = 'Booking';
-  document.getElementById('fPhase').value = 'Room Booking';
-  document.getElementById('fSpearhead').value = 'Bassel Taleb';
-  document.getElementById('fStakeholder').value = 'Student Users';
-  document.getElementById('fType').value = 'Technical';
-  document.getElementById('fStatus').value = 'Planned';
-  document.getElementById('fPriority').value = 'High';
-  document.getElementById('modalOverlay').classList.add('open');
+  try {
+    editingId = null;
+    document.getElementById('modalTitle').textContent = 'Add Requirement';
+    var nextNum = Math.max.apply(null, requirements.map(function(r){ return r.num; }).concat([0])) + 1;
+    document.getElementById('fDate').value        = today;
+    document.getElementById('fId').value           = 'CBS-REQ-' + String(nextNum).padStart(3,'0');
+    document.getElementById('fNum').value          = nextNum;
+    document.getElementById('fDesc').value         = '';
+    document.getElementById('fCategory').value     = 'Booking';
+    document.getElementById('fPhase').value        = 'Room Booking';
+    document.getElementById('fSpearhead').value    = 'Bassel Taleb';
+    document.getElementById('fStakeholder').value  = 'Student Users';
+    document.getElementById('fType').value         = 'Technical';
+    document.getElementById('fStatus').value       = 'Planned';
+    document.getElementById('fPriority').value     = 'High';
+    document.getElementById('modalOverlay').classList.add('open');
+  } catch(e) { console.error('openAddModal error:', e); alert('Error opening form: ' + e.message); }
 }
 
 function openEditModal(id) {
-  editingId = id;
-  const r = requirements.find(r => r.id === id);
-  if (!r) return;
-  document.getElementById('modalTitle').textContent = 'Edit Requirement';
-  document.getElementById('fId').value         = r.id;
-  document.getElementById('fNum').value        = r.num;
-  document.getElementById('fDesc').value       = r.desc;
-  document.getElementById('fCategory').value   = r.category;
-  document.getElementById('fPhase').value      = r.phase;
-  document.getElementById('fSpearhead').value  = r.spearhead;
-  document.getElementById('fStakeholder').value= r.stakeholder;
-  document.getElementById('fType').value       = r.type;
-  document.getElementById('fStatus').value     = r.status;
-  document.getElementById('fPriority').value   = r.priority;
-  document.getElementById('modalOverlay').classList.add('open');
+  try {
+    editingId = id;
+    var r = requirements.find(function(req){ return req.id === id; });
+    if (!r) return;
+    document.getElementById('modalTitle').textContent = 'Edit Requirement';
+    document.getElementById('fDate').value         = r.date || today;
+    document.getElementById('fId').value           = r.id;
+    document.getElementById('fNum').value          = r.num;
+    document.getElementById('fDesc').value         = r.desc;
+    document.getElementById('fCategory').value     = r.category;
+    document.getElementById('fPhase').value        = r.phase;
+    document.getElementById('fSpearhead').value    = r.spearhead;
+    document.getElementById('fStakeholder').value  = r.stakeholder;
+    document.getElementById('fType').value         = r.type;
+    document.getElementById('fStatus').value       = r.status;
+    document.getElementById('fPriority').value     = r.priority;
+    document.getElementById('modalOverlay').classList.add('open');
+  } catch(e) { console.error('openEditModal error:', e); alert('Error opening form: ' + e.message); }
 }
 
 function closeModal() {
@@ -436,33 +450,37 @@ function closeModal() {
 }
 
 function saveRequirement() {
-  const data = {
-    date:        today,
-    id:          document.getElementById('fId').value.trim(),
-    num:         parseInt(document.getElementById('fNum').value),
-    category:    document.getElementById('fCategory').value,
-    desc:        document.getElementById('fDesc').value.trim(),
-    spearhead:   document.getElementById('fSpearhead').value,
-    stakeholder: document.getElementById('fStakeholder').value,
-    phase:       document.getElementById('fPhase').value,
-    type:        document.getElementById('fType').value,
-    status:      document.getElementById('fStatus').value,
-    priority:    document.getElementById('fPriority').value,
-  };
+  try {
+    var data = {
+      date:        document.getElementById('fDate').value || today,
+      id:          document.getElementById('fId').value.trim(),
+      num:         parseInt(document.getElementById('fNum').value) || 0,
+      category:    document.getElementById('fCategory').value,
+      desc:        document.getElementById('fDesc').value.trim(),
+      spearhead:   document.getElementById('fSpearhead').value,
+      stakeholder: document.getElementById('fStakeholder').value,
+      phase:       document.getElementById('fPhase').value,
+      type:        document.getElementById('fType').value,
+      status:      document.getElementById('fStatus').value,
+      priority:    document.getElementById('fPriority').value,
+    };
 
-  if (!data.id || !data.desc) { alert('ID and Description are required.'); return; }
+    if (!data.id || !data.desc) { alert('ID and Description are required.'); return; }
 
-  if (editingId) {
-    const idx = requirements.findIndex(r => r.id === editingId);
-    if (idx >= 0) requirements[idx] = data;
-    showToast('Requirement updated');
-  } else {
-    requirements.push(data);
-    showToast('Requirement added');
-  }
+    if (editingId) {
+      var idx = requirements.findIndex(function(req){ return req.id === editingId; });
+      if (idx >= 0) {
+        requirements[idx] = data;
+      }
+      showToast('Requirement updated');
+    } else {
+      requirements.push(data);
+      showToast('Requirement added');
+    }
 
-  closeModal();
-  applyFilters();
+    closeModal();
+    applyFilters();
+  } catch(e) { console.error('saveRequirement error:', e); alert('Error saving: ' + e.message); }
 }
 
 // ── Export CSV ───────────────────────────────────────────────────────────────
