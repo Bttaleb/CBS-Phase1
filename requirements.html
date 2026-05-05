@@ -23,7 +23,7 @@
 <div class="header">
   <div class="header-left">
     <h1>Campus Booking System — Requirements Database</h1>
-    <p>CBS-REQDB-001 &nbsp;·&nbsp; Phase 1 &nbsp;·&nbsp; v1.0</p>
+    <p>CBS-REQDB-001 &nbsp;·&nbsp; Phase 1 &nbsp;·&nbsp; v1.1 &nbsp;·&nbsp; Last sync against code: <span id="lastSync">—</span></p>
   </div>
   <div class="header-actions">
     <button class="btn btn-ghost" onclick="exportCSV()">↓ Export CSV</button>
@@ -83,6 +83,8 @@
 
   <div class="toolbar-sep"></div>
   <span class="stat-badge">Showing <strong id="visibleCount">0</strong> of <strong id="totalCount">0</strong></span>
+  <span class="stat-badge">Done <strong id="doneCount">0</strong> · In-Progress <strong id="progCount">0</strong> · Planned <strong id="planCount">0</strong></span>
+  <span class="stat-badge">Completion <strong id="completionPct">0%</strong></span>
 </div>
 
 <div class="table-wrap">
@@ -100,6 +102,8 @@
         <th onclick="sortTable('type')">Reqt Type</th>
         <th onclick="sortTable('status')">Status</th>
         <th onclick="sortTable('priority')">Priority</th>
+        <th>Code Ref</th>
+        <th>Test Ref</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -201,6 +205,14 @@
           <option>Low</option>
         </select>
       </div>
+      <div class="form-group full">
+        <label>Code Ref (file path[s], comma-separated)</label>
+        <input type="text" id="fCode" placeholder="SoftwareEng/Core/Services/Room/RoomService.swift"/>
+      </div>
+      <div class="form-group full">
+        <label>Test Ref (file path[s], comma-separated)</label>
+        <input type="text" id="fTest" placeholder="SoftwareEngTests/RoomTests.swift"/>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
@@ -216,45 +228,45 @@
 
 let requirements = [
   // EPIC 1 — Authentication
-  { date: '2025-09-03', id: 'CBS-REQ-001', num: 1, category: 'Authentication', desc: 'Allow students to register with a university-issued email address and create a secure account.', spearhead: 'Bassel Taleb', stakeholder: 'Student Users', phase: 'Authentication', type: 'Technical', status: 'Planned', priority: 'High' },
-  { date: '2025-09-05', id: 'CBS-REQ-002', num: 1, category: 'Security', desc: 'Implement secure credential-based login with session token management and automatic expiry.', spearhead: 'Saad Alzamzami', stakeholder: 'Student Users', phase: 'Authentication', type: 'Technical', status: 'Planned', priority: 'High' },
-  { date: '2025-09-11', id: 'CBS-REQ-003', num: 1, category: 'Security', desc: 'Enable biometric authentication (Face ID / Touch ID) for returning users on iOS devices.', spearhead: 'Bassel Taleb', stakeholder: 'Student Users', phase: 'Authentication', type: 'Technical', status: 'Planned', priority: 'Medium' },
-  { date: '2025-09-15', id: 'CBS-REQ-004', num: 1, category: 'Authentication', desc: 'Provide password reset functionality via verified university email.', spearhead: 'Bassel Taleb', stakeholder: 'Student Users', phase: 'Authentication', type: 'Technical', status: 'Planned', priority: 'Medium' },
-  { date: '2025-09-18', id: 'CBS-REQ-005', num: 1, category: 'Accessibility', desc: 'Allow all authenticated users to view and update their profile, contact details, and booking preferences.', spearhead: 'Syeda Ahmed', stakeholder: 'Student Users', phase: 'Authentication', type: 'UX', status: 'Planned', priority: 'Medium' },
+  { date: '2025-09-03', id: 'CBS-REQ-001', num: 1, category: 'Authentication', desc: 'Allow students to register with a university-issued email address and create a secure account.', spearhead: 'Bassel Taleb', stakeholder: 'Student Users', phase: 'Authentication', type: 'Technical', status: 'Done', priority: 'High', code: 'SoftwareEng/Core/Services/Auth/SupabaseAuthService.swift, SoftwareEng/Core/Views/Auth/LoginView.swift', test: '' },
+  { date: '2025-09-05', id: 'CBS-REQ-002', num: 1, category: 'Security', desc: 'Implement secure credential-based login with session token management and automatic expiry.', spearhead: 'Saad Alzamzami', stakeholder: 'Student Users', phase: 'Authentication', type: 'Technical', status: 'Done', priority: 'High', code: 'SoftwareEng/Core/Services/Auth/SupabaseAuthService.swift, SoftwareEng/Core/Manager/AuthManager.swift, SoftwareEng/Core/Utilities/KeychainService.swift', test: '' },
+  { date: '2025-09-11', id: 'CBS-REQ-003', num: 1, category: 'Security', desc: 'Enable biometric authentication (Face ID / Touch ID) for returning users on iOS devices.', spearhead: 'Bassel Taleb', stakeholder: 'Student Users', phase: 'Authentication', type: 'Technical', status: 'Planned', priority: 'Medium', code: '', test: '' },
+  { date: '2025-09-15', id: 'CBS-REQ-004', num: 1, category: 'Authentication', desc: 'Provide password reset functionality via verified university email.', spearhead: 'Bassel Taleb', stakeholder: 'Student Users', phase: 'Authentication', type: 'Technical', status: 'Planned', priority: 'Medium', code: '', test: '' },
+  { date: '2025-09-18', id: 'CBS-REQ-005', num: 1, category: 'Accessibility', desc: 'Allow all authenticated users to view and update their profile, contact details, and booking preferences.', spearhead: 'Syeda Ahmed', stakeholder: 'Student Users', phase: 'Authentication', type: 'UX', status: 'In-Progress', priority: 'Medium', code: 'SoftwareEng/Core/Views/Auth/ProfileView.swift', test: '' },
 
   // EPIC 2 — Tutor Booking
-  { date: '2025-09-22', id: 'CBS-REQ-006', num: 2, category: 'Booking', desc: 'Enable students to search and filter tutors by subject, availability, and rating.', spearhead: 'Umaya Hassan', stakeholder: 'Student Users', phase: 'Tutor Booking', type: 'UX', status: 'Planned', priority: 'High' },
-  { date: '2025-09-25', id: 'CBS-REQ-007', num: 2, category: 'Booking', desc: 'Display a live availability calendar for each tutor showing open, booked, and blocked slots.', spearhead: 'Saad Alzamzami', stakeholder: 'Tutor Users', phase: 'Tutor Booking', type: 'Technical', status: 'Planned', priority: 'High' },
-  { date: '2025-09-29', id: 'CBS-REQ-008', num: 2, category: 'Booking', desc: 'Allow students to reserve a tutor session slot and receive an instant booking confirmation.', spearhead: 'Bassel Taleb', stakeholder: 'Student Users', phase: 'Tutor Booking', type: 'Technical', status: 'Planned', priority: 'High' },
-  { date: '2025-10-02', id: 'CBS-REQ-009', num: 2, category: 'Booking', desc: 'Permit session cancellation or rescheduling within a defined policy window (e.g., 24 hours notice).', spearhead: 'Jason Myers', stakeholder: 'Academic Services (External)', phase: 'Tutor Booking', type: 'Policy', status: 'Planned', priority: 'Medium' },
+  { date: '2025-09-22', id: 'CBS-REQ-006', num: 2, category: 'Booking', desc: 'Enable students to search and filter tutors by subject, availability, and rating.', spearhead: 'Umaya Hassan', stakeholder: 'Student Users', phase: 'Tutor Booking', type: 'UX', status: 'Done', priority: 'High', code: 'SoftwareEng/Core/Services/Tutor/TutorService.swift, SoftwareEng/ViewModels/Tutor/TutorViewModel.swift', test: '' },
+  { date: '2025-09-25', id: 'CBS-REQ-007', num: 2, category: 'Booking', desc: 'Display a live availability calendar for each tutor showing open, booked, and blocked slots.', spearhead: 'Saad Alzamzami', stakeholder: 'Tutor Users', phase: 'Tutor Booking', type: 'Technical', status: 'In-Progress', priority: 'High', code: 'SoftwareEng/Core/Services/Tutor/TutorService.swift (getTutorAvailability)', test: '' },
+  { date: '2025-09-29', id: 'CBS-REQ-008', num: 2, category: 'Booking', desc: 'Allow students to reserve a tutor session slot and receive an instant booking confirmation.', spearhead: 'Bassel Taleb', stakeholder: 'Student Users', phase: 'Tutor Booking', type: 'Technical', status: 'Done', priority: 'High', code: 'SoftwareEng/Core/Services/Tutor/TutorService.swift (bookSession), SoftwareEng/ViewModels/Tutor/TutorViewModel.swift', test: 'SoftwareEngTests/RentableTests.swift' },
+  { date: '2025-10-02', id: 'CBS-REQ-009', num: 2, category: 'Booking', desc: 'Permit session cancellation or rescheduling within a defined policy window (e.g., 24 hours notice).', spearhead: 'Jason Myers', stakeholder: 'Academic Services (External)', phase: 'Tutor Booking', type: 'Policy', status: 'Done', priority: 'Medium', code: 'SoftwareEng/Core/Protocols/Rentable.swift, SoftwareEng/Core/Models/Tutor/Tutor.swift (canCancel), SoftwareEng/App/Config.swift (tutorCancellationDeadline)', test: 'SoftwareEngTests/RentableTests.swift' },
 
   // EPIC 3 — Room Booking
-  { date: '2025-10-09', id: 'CBS-REQ-010', num: 3, category: 'Booking', desc: 'Allow students to search and filter study rooms by capacity, location, equipment available, and real-time availability.', spearhead: 'Umaya Hassan', stakeholder: 'Student Users', phase: 'Room Booking', type: 'UX', status: 'Planned', priority: 'High' },
-  { date: '2025-10-16', id: 'CBS-REQ-011', num: 3, category: 'Booking', desc: 'Enable reservation of a room for a specified time block with confirmation receipt.', spearhead: 'Bassel Taleb', stakeholder: 'Student Users', phase: 'Room Booking', type: 'Technical', status: 'Planned', priority: 'High' },
-  { date: '2025-10-20', id: 'CBS-REQ-012', num: 3, category: 'Accessibility', desc: 'Provide QR-code check-in functionality for confirmed room reservations on arrival.', spearhead: 'Syeda Ahmed', stakeholder: 'Facilities Management', phase: 'Room Booking', type: 'Technical', status: 'Planned', priority: 'Medium' },
-  { date: '2025-10-23', id: 'CBS-REQ-013', num: 3, category: 'Booking', desc: 'Display room details including photos, capacity, amenities, floor plan, and booking rules.', spearhead: 'Syeda Ahmed', stakeholder: 'Student Users', phase: 'Room Booking', type: 'UX', status: 'Planned', priority: 'Medium' },
+  { date: '2025-10-09', id: 'CBS-REQ-010', num: 3, category: 'Booking', desc: 'Allow students to search and filter study rooms by capacity, location, equipment available, and real-time availability.', spearhead: 'Umaya Hassan', stakeholder: 'Student Users', phase: 'Room Booking', type: 'UX', status: 'Done', priority: 'High', code: 'SoftwareEng/Core/Services/Room/RoomService.swift, SoftwareEng/Core/Views/Room/RoomListView.swift', test: 'SoftwareEngTests/RoomTests.swift' },
+  { date: '2025-10-16', id: 'CBS-REQ-011', num: 3, category: 'Booking', desc: 'Enable reservation of a room for a specified time block with confirmation receipt.', spearhead: 'Bassel Taleb', stakeholder: 'Student Users', phase: 'Room Booking', type: 'Technical', status: 'Done', priority: 'High', code: 'SoftwareEng/Core/Services/Room/RoomService.swift (book), SoftwareEng/Core/Views/Room/BookRoomView.swift', test: 'SoftwareEngTests/RoomTests.swift, SoftwareEngTests/RentableTests.swift' },
+  { date: '2025-10-20', id: 'CBS-REQ-012', num: 3, category: 'Accessibility', desc: 'Provide QR-code check-in functionality for confirmed room reservations on arrival.', spearhead: 'Syeda Ahmed', stakeholder: 'Facilities Management', phase: 'Room Booking', type: 'Technical', status: 'Planned', priority: 'Medium', code: '', test: '' },
+  { date: '2025-10-23', id: 'CBS-REQ-013', num: 3, category: 'Booking', desc: 'Display room details including photos, capacity, amenities, floor plan, and booking rules.', spearhead: 'Syeda Ahmed', stakeholder: 'Student Users', phase: 'Room Booking', type: 'UX', status: 'In-Progress', priority: 'Medium', code: 'SoftwareEng/Core/Views/Room/RoomDetailView.swift', test: '' },
 
   // EPIC 4 — Equipment Booking
-  { date: '2025-11-03', id: 'CBS-REQ-014', num: 4, category: 'Booking', desc: 'Provide a searchable equipment catalogue organised by category with real-time availability status.', spearhead: 'Umaya Hassan', stakeholder: 'Student Users', phase: 'Equipment Booking', type: 'UX', status: 'Planned', priority: 'High' },
-  { date: '2025-11-06', id: 'CBS-REQ-015', num: 4, category: 'Booking', desc: 'Allow students to reserve equipment items with specified pickup and return time slots.', spearhead: 'Bassel Taleb', stakeholder: 'Student Users', phase: 'Equipment Booking', type: 'Technical', status: 'Planned', priority: 'High' },
-  { date: '2025-11-14', id: 'CBS-REQ-016', num: 4, category: 'Notifications', desc: 'Send automated alerts to students for overdue equipment returns.', spearhead: 'Bassel Taleb', stakeholder: 'University IT Department', phase: 'Equipment Booking', type: 'Technical', status: 'Planned', priority: 'Medium' },
+  { date: '2025-11-03', id: 'CBS-REQ-014', num: 4, category: 'Booking', desc: 'Provide a searchable equipment catalogue organised by category with real-time availability status.', spearhead: 'Umaya Hassan', stakeholder: 'Student Users', phase: 'Equipment Booking', type: 'UX', status: 'Done', priority: 'High', code: 'SoftwareEng/Core/Services/Equipment/EquipmentService.swift, SoftwareEng/Core/Services/Equipment/MockEquipmentService.swift, SoftwareEng/Core/Views/Equipment/EquipmentListView.swift', test: '' },
+  { date: '2025-11-06', id: 'CBS-REQ-015', num: 4, category: 'Booking', desc: 'Allow students to reserve equipment items with specified pickup and return time slots.', spearhead: 'Bassel Taleb', stakeholder: 'Student Users', phase: 'Equipment Booking', type: 'Technical', status: 'Done', priority: 'High', code: 'SoftwareEng/Core/Services/Equipment/EquipmentService.swift (rent), SoftwareEng/Core/Views/Equipment/EquipmentDetailView.swift, SoftwareEng/Core/Views/Equipment/ReserveEquipmentView.swift', test: '' },
+  { date: '2025-11-14', id: 'CBS-REQ-016', num: 4, category: 'Notifications', desc: 'Send automated alerts to students for overdue equipment returns.', spearhead: 'Bassel Taleb', stakeholder: 'University IT Department', phase: 'Equipment Booking', type: 'Technical', status: 'Planned', priority: 'Medium', code: 'SoftwareEng/Core/Models/Equipment/Equipment.swift (isOverdue)', test: '' },
 
   // EPIC 5 — Notifications
-  { date: '2025-11-27', id: 'CBS-REQ-017', num: 5, category: 'Notifications', desc: 'Send reminder notifications 24 hours and 1 hour before scheduled bookings.', spearhead: 'Bassel Taleb', stakeholder: 'Student Users', phase: 'Notifications', type: 'Technical', status: 'Planned', priority: 'High' },
-  { date: '2025-12-01', id: 'CBS-REQ-018', num: 5, category: 'Notifications', desc: 'Notify students of cancellations, slot changes, or admin-triggered booking modifications.', spearhead: 'Bassel Taleb', stakeholder: 'Student Users', phase: 'Notifications', type: 'Technical', status: 'Planned', priority: 'High' },
-  { date: '2025-12-08', id: 'CBS-REQ-019', num: 5, category: 'Accessibility', desc: 'Allow users to configure notification preferences (push, in-app) in profile settings.', spearhead: 'Syeda Ahmed', stakeholder: 'Student Users', phase: 'Notifications', type: 'UX', status: 'Planned', priority: 'Low' },
+  { date: '2025-11-27', id: 'CBS-REQ-017', num: 5, category: 'Notifications', desc: 'Send reminder notifications 24 hours and 1 hour before scheduled bookings.', spearhead: 'Bassel Taleb', stakeholder: 'Student Users', phase: 'Notifications', type: 'Technical', status: 'In-Progress', priority: 'High', code: 'SoftwareEng/Core/Services/Notification/NotificationManager.swift', test: '' },
+  { date: '2025-12-01', id: 'CBS-REQ-018', num: 5, category: 'Notifications', desc: 'Notify students of cancellations, slot changes, or admin-triggered booking modifications.', spearhead: 'Bassel Taleb', stakeholder: 'Student Users', phase: 'Notifications', type: 'Technical', status: 'Planned', priority: 'High', code: 'SoftwareEng/Core/Services/Notification/NotificationManager.swift', test: '' },
+  { date: '2025-12-08', id: 'CBS-REQ-019', num: 5, category: 'Accessibility', desc: 'Allow users to configure notification preferences (push, in-app) in profile settings.', spearhead: 'Syeda Ahmed', stakeholder: 'Student Users', phase: 'Notifications', type: 'UX', status: 'Planned', priority: 'Low', code: '', test: '' },
 
   // EPIC 6 — Administration
-  { date: '2026-01-06', id: 'CBS-REQ-020', num: 6, category: 'Administration', desc: 'Provide an admin dashboard showing real-time resource utilisation across rooms, equipment, and tutors.', spearhead: 'Saad Alzamzami', stakeholder: 'Admin Users', phase: 'Administration', type: 'Technical', status: 'Planned', priority: 'High' },
-  { date: '2026-01-09', id: 'CBS-REQ-021', num: 6, category: 'Administration', desc: 'Allow admins to create, modify, and deactivate student and tutor user accounts.', spearhead: 'Jason Myers', stakeholder: 'University IT Department', phase: 'Administration', type: 'Policy', status: 'Planned', priority: 'High' },
-  { date: '2026-01-13', id: 'CBS-REQ-022', num: 6, category: 'Administration', desc: 'Enable admins to approve, reject, or override any booking request across all resource types.', spearhead: 'Jason Myers', stakeholder: 'Admin Users', phase: 'Administration', type: 'Policy', status: 'Planned', priority: 'High' },
-  { date: '2026-01-20', id: 'CBS-REQ-023', num: 6, category: 'Security', desc: 'Maintain a full audit log of all admin actions, booking events, and system changes.', spearhead: 'Saad Alzamzami', stakeholder: 'Compliance Team', phase: 'Administration', type: 'Policy', status: 'Planned', priority: 'High' },
+  { date: '2026-01-06', id: 'CBS-REQ-020', num: 6, category: 'Administration', desc: 'Provide an admin dashboard showing real-time resource utilisation across rooms, equipment, and tutors.', spearhead: 'Saad Alzamzami', stakeholder: 'Admin Users', phase: 'Administration', type: 'Technical', status: 'Planned', priority: 'High', code: '', test: '' },
+  { date: '2026-01-09', id: 'CBS-REQ-021', num: 6, category: 'Administration', desc: 'Allow admins to create, modify, and deactivate student and tutor user accounts.', spearhead: 'Jason Myers', stakeholder: 'University IT Department', phase: 'Administration', type: 'Policy', status: 'Planned', priority: 'High', code: '', test: '' },
+  { date: '2026-01-13', id: 'CBS-REQ-022', num: 6, category: 'Administration', desc: 'Enable admins to approve, reject, or override any booking request across all resource types.', spearhead: 'Jason Myers', stakeholder: 'Admin Users', phase: 'Administration', type: 'Policy', status: 'Planned', priority: 'High', code: '', test: '' },
+  { date: '2026-01-20', id: 'CBS-REQ-023', num: 6, category: 'Security', desc: 'Maintain a full audit log of all admin actions, booking events, and system changes.', spearhead: 'Saad Alzamzami', stakeholder: 'Compliance Team', phase: 'Administration', type: 'Policy', status: 'Planned', priority: 'High', code: '', test: '' },
 
   // EPIC 7 — Ratings & Feedback
-  { date: '2026-01-27', id: 'CBS-REQ-025', num: 7, category: 'Feedback', desc: 'Allow students to submit a star rating and written review after each completed tutor session.', spearhead: 'Syeda Ahmed', stakeholder: 'Student Users', phase: 'Ratings & Feedback', type: 'UX', status: 'Planned', priority: 'Low' },
-  { date: '2026-01-30', id: 'CBS-REQ-024', num: 7, category: 'Feedback', desc: 'Display aggregated tutor ratings and reviews on the tutor profile view.', spearhead: 'Syeda Ahmed', stakeholder: 'Tutor Users', phase: 'Ratings & Feedback', type: 'UX', status: 'Planned', priority: 'High' },
-  { date: '2026-02-03', id: 'CBS-REQ-026', num: 7, category: 'Feedback', desc: 'Enable students to rate room and equipment quality after use, contributing to a quality score.', spearhead: 'Umaya Hassan', stakeholder: 'Facilities Management', phase: 'Ratings & Feedback', type: 'UX', status: 'Planned', priority: 'Medium' },
-  { date: '2026-02-13', id: 'CBS-REQ-027', num: 7, category: 'Security', desc: 'Ensure all user data is encrypted in transit (TLS 1.3) and at rest, complying with university data protection policy.', spearhead: 'Saad Alzamzami', stakeholder: 'University IT Department', phase: 'Administration', type: 'Policy', status: 'Planned', priority: 'High' },
+  { date: '2026-01-27', id: 'CBS-REQ-025', num: 7, category: 'Feedback', desc: 'Allow students to submit a star rating and written review after each completed tutor session.', spearhead: 'Syeda Ahmed', stakeholder: 'Student Users', phase: 'Ratings & Feedback', type: 'UX', status: 'In-Progress', priority: 'Low', code: 'SoftwareEng/Core/Services/Tutor/TutorService.swift (rateSession)', test: '' },
+  { date: '2026-01-30', id: 'CBS-REQ-024', num: 7, category: 'Feedback', desc: 'Display aggregated tutor ratings and reviews on the tutor profile view.', spearhead: 'Syeda Ahmed', stakeholder: 'Tutor Users', phase: 'Ratings & Feedback', type: 'UX', status: 'In-Progress', priority: 'High', code: 'SoftwareEng/Core/Models/Tutor/Tutor.swift (rating, ratingDisplay)', test: '' },
+  { date: '2026-02-03', id: 'CBS-REQ-026', num: 7, category: 'Feedback', desc: 'Enable students to rate room and equipment quality after use, contributing to a quality score.', spearhead: 'Umaya Hassan', stakeholder: 'Facilities Management', phase: 'Ratings & Feedback', type: 'UX', status: 'In-Progress', priority: 'Medium', code: 'SoftwareEng/Core/Services/Room/RoomService.swift (rate), SoftwareEng/Core/Services/Equipment/EquipmentService.swift (rate)', test: '' },
+  { date: '2026-02-13', id: 'CBS-REQ-027', num: 7, category: 'Security', desc: 'Ensure all user data is encrypted in transit (TLS 1.3) and at rest, complying with university data protection policy.', spearhead: 'Saad Alzamzami', stakeholder: 'University IT Department', phase: 'Administration', type: 'Policy', status: 'Done', priority: 'High', code: 'SoftwareEng/App/Config.swift, SoftwareEng/Core/Services/Auth/SupabaseAuthService.swift (HTTPS via Supabase)', test: '' },
 ];
 
 let editingId = null;
@@ -301,6 +313,8 @@ function renderTable() {
         <td>${badge(r.type, 'type')}</td>
         <td>${badge(r.status, 'status')}</td>
         <td>${badge(r.priority, 'priority')}</td>
+        <td class="ref-cell" contenteditable="true" onblur="updateField('${r.id}','code',this.innerText)">${hl(r.code || '')}</td>
+        <td class="ref-cell" contenteditable="true" onblur="updateField('${r.id}','test',this.innerText)">${hl(r.test || '')}</td>
         <td>
           <div style="display:flex;gap:0.4rem;align-items:center;">
             <button class="btn btn-ghost" style="padding:0.28rem 0.55rem;font-size:0.72rem;" onclick="openEditModal('${r.id}')">Edit</button>
@@ -313,6 +327,18 @@ function renderTable() {
 
   document.getElementById('visibleCount').textContent = filteredData.length;
   document.getElementById('totalCount').textContent = requirements.length;
+  updateProgressStats();
+}
+
+function updateProgressStats() {
+  var done = requirements.filter(function(r){ return r.status === 'Done'; }).length;
+  var prog = requirements.filter(function(r){ return r.status === 'In-Progress'; }).length;
+  var plan = requirements.filter(function(r){ return r.status === 'Planned'; }).length;
+  var total = requirements.length || 1;
+  document.getElementById('doneCount').textContent = done;
+  document.getElementById('progCount').textContent = prog;
+  document.getElementById('planCount').textContent = plan;
+  document.getElementById('completionPct').textContent = Math.round((done / total) * 100) + '%';
 }
 
 // ── Filtering ────────────────────────────────────────────────────────────────
@@ -326,7 +352,7 @@ function applyFilters() {
   const type     = document.getElementById('filterType').value;
 
   filteredData = requirements.filter(r => {
-    const text = [r.id, r.desc, r.spearhead, r.stakeholder, r.phase, r.category].join(' ').toLowerCase();
+    const text = [r.id, r.desc, r.spearhead, r.stakeholder, r.phase, r.category, r.code, r.test].join(' ').toLowerCase();
     return (
       (!q        || text.includes(q)) &&
       (!epic     || r.phase     === epic) &&
@@ -406,6 +432,8 @@ function openAddModal() {
     document.getElementById('fType').value         = 'Technical';
     document.getElementById('fStatus').value       = 'Planned';
     document.getElementById('fPriority').value     = 'High';
+    document.getElementById('fCode').value         = '';
+    document.getElementById('fTest').value         = '';
     document.getElementById('modalOverlay').classList.add('open');
   } catch(e) { console.error('openAddModal error:', e); alert('Error opening form: ' + e.message); }
 }
@@ -427,6 +455,8 @@ function openEditModal(id) {
     document.getElementById('fType').value         = r.type;
     document.getElementById('fStatus').value       = r.status;
     document.getElementById('fPriority').value     = r.priority;
+    document.getElementById('fCode').value         = r.code || '';
+    document.getElementById('fTest').value         = r.test || '';
     document.getElementById('modalOverlay').classList.add('open');
   } catch(e) { console.error('openEditModal error:', e); alert('Error opening form: ' + e.message); }
 }
@@ -450,6 +480,8 @@ function saveRequirement() {
       type:        document.getElementById('fType').value,
       status:      document.getElementById('fStatus').value,
       priority:    document.getElementById('fPriority').value,
+      code:        document.getElementById('fCode').value.trim(),
+      test:        document.getElementById('fTest').value.trim(),
     };
 
     if (!data.id || !data.desc) { alert('ID and Description are required.'); return; }
@@ -473,8 +505,8 @@ function saveRequirement() {
 // ── Export CSV ───────────────────────────────────────────────────────────────
 
 function exportCSV() {
-  const cols = ['date','id','num','category','desc','spearhead','stakeholder','phase','type','status','priority'];
-  const header = ['Date','Unique ID','#','Category','REQT Description','Spearhead','Stakeholder','Phase/Epic','Reqt Type','Status','Priority'];
+  const cols = ['date','id','num','category','desc','spearhead','stakeholder','phase','type','status','priority','code','test'];
+  const header = ['Date','Unique ID','#','Category','REQT Description','Spearhead','Stakeholder','Phase/Epic','Reqt Type','Status','Priority','Code Ref','Test Ref'];
   const rows = [header, ...filteredData.map(r => cols.map(c => `"${String(r[c]||'').replace(/"/g,'""')}"`)  )];
   const csv = rows.map(r => r.join(',')).join('\n');
   const a = document.createElement('a');
@@ -502,6 +534,7 @@ document.getElementById('modalOverlay').addEventListener('click', e => {
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 // ── Init ─────────────────────────────────────────────────────────────────────
+document.getElementById('lastSync').textContent = today;
 applyFilters();
 </script>
 </body>

@@ -327,6 +327,19 @@ td.num { text-align: center; }
 
 .badge-phase { background: rgba(255,255,255,0.06); color: var(--muted); }
 
+.ref-cell {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--muted);
+  max-width: 280px;
+  word-break: break-all;
+  line-height: 1.4;
+}
+.ref-cell:empty::before {
+  content: '—';
+  color: rgba(127,168,138,0.4);
+}
+
 td select.inline-select {
   background: var(--surface2);
   border: 1px solid var(--border);
